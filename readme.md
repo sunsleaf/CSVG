@@ -57,3 +57,6 @@ For example, you can run the following command to visualize results on the ScanR
 Use the `--help` option to see a full list of available options, e.g., the `--distractor-required` option will plot the distractors (objects with the same label as the target).
 
 The visualization script will start a [PyViz] server, and you can view the visualization in your browser at `0.0.0.0:8889` (the default port).
+
+### License
+The source code is released under [GPLv3](https://www.gnu.org/licenses/) license.
