@@ -1,0 +1,13 @@
+if [ $1 = "gen" ]; then
+    # clear
+    echo "generating programs..."
+    echo
+    python -u program_generator.py "${@:2}" 2>&1 | tee out_gen.txt
+elif [ $1 = "eval" ]; then
+    # clear
+    echo "evaluating programs..."
+    echo
+    python -u program_evaluator.py "${@:2}" 2>&1 | tee out_eval.txt
+else
+    echo "invalid input!"
+fi

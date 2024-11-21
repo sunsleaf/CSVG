@@ -1,0 +1,324 @@
+<[SYSTEM]>
+
+You are given the 3D visual grounding task. The input is a language query describing some object(s) in the 3D scene. Besides that, you are also given a list of object labels that are relevant to this query. Any other objects should not be considered. 
+
+Your task is to generate a Python program that locate the target object specified by the query. You don't have to use all the relevant object labels given to you. Some of them may actually be irrelevant. What's important is, you should always use the labels of the relevant objects given to you.
+
+The Python program you generate should solve a CSP (Constraint Satisfication Problem). Solving the CSP will result in the correct grounding of the target objects. The variables are objects and constraints are spatial relationships among objects or appearance information of objects.
+
+You should first try to do some spatial reasoning of the input query and simplify the logic. Some relations between objects can be converted into simpler ones. You should always first try to reduce the complexity of the input query. E.g. an object that has one object on the left and another on the right is between those two objects. So you should use a single relation "between", instead of two relations "left" and "right". There are many similar cases.
+
+There are two types of variables: normal variables (DEFINE_VARIABLE), which represent a single object, and negative variables (DEFINE_NEGATIVE_VARIABLE), which indicate the abscence of an object satisfying some spatial relations. You should only use negative variables when the query mentions some negative conditions with e.g., 'do not' or 'without'.
+
+Your should only use the following predefined functions in your program. No other functions are allowed.
+
+<[REGISTERED_FUNCTIONS_PLACEHOLDER]>
+
+Some of the predefined functions above have a "score_func" parameter, which specifies how to compare objects. The following score functions are available.
+
+<[REGISTERED_SCORE_FUNCTIONS_PLACEHOLDER]>
+
+Your output should be a valid Python program, which means that any additional explanation should be comments (start with #). You only have to output the python code. Please DO NOT follow markdown conventions. You DO NOT have to enclose the code with ```.
+
+Some extra tips:
+- "North", "south", "east" and "west" should always be translated into "near".
+- If something is at the side of a room, it should be far from the room center.
+- If an object you need is not in the relevant object list, please ignore information about that object, and do not use it.
+- You should not ignore relations that can be represented with the given relevant object labels and available functions.
+- Relations like "farthest", "northwestern-most" in reference to the room should be translated to being farthest to the room center.
+- You should identify only ONE target, to which the given 3D visual grounding query is referring to. You should always set the target at the very end. No function calls are allowed after setting the target.
+- Please DO NOT define variables that you will not use later. Every variables defined must be set in relation with at least one other variable.
+- Sometimes multiple labels refer to similar objects. For example, different queries may use "desk" or "table" to refer to the same thing. So when you need a "desk", and only "table" are available, you should use table, and vice versa.
+- For each object, you either define a normal variable or a negative variable. Please do not define both.
+
+<[USER]>
+
+QUERY:
+this is a grey chair. it is at the end of the shorter coffee table closest to the window.
+
+RELEVANT OBJECT LABELS:
+[0] chair
+[1] window
+[2] coffee table
+
+<[ASSISTANT]>
+
+# define variables for the CSP
+CHAIR_0 = DEFINE_VARIABLE(labels=["chair"])
+WINDOW_0 = DEFINE_VARIABLE(labels=["window"])
+COFFEE_TABLE_0 = DEFINE_VARIABLE(labels=["coffee table"])
+
+# add a constraint: the grey chair is at the end of the shorter coffee table
+CONSTRAINT_NEAR(target=CHAIR_0, anchor=COFFEE_TABLE_0)
+
+# add a constraint: the coffee table is the one closest to the window
+CONSTRAINT_MIN_OF(target=COFFEE_TABLE_0, anchor=WINDOW_0, score_func="distance")
+
+# finally set the CSP variable representing the target object
+SET_TARGET(CHAIR_0)
+
+<[USER]>
+
+QUERY:
+the desk is one of three in the row. there is a desk to the right of it, and a desk to the left of it.
+
+RELEVANT OBJECT LABELS:
+[0] desk
+
+<[ASSISTANT]>
+
+# since there are three desks in total, I'll create an object to represent each of them
+DESK_MIDDLE = DEFINE_VARIABLE(labels=["desk"])
+DESK_LEFT = DEFINE_VARIABLE(labels=["desk"])
+DESK_RIGHT = DEFINE_VARIABLE(labels=["desk"])
+
+# the target desk has one desk to the right, one to the left, therefore by a simple reasoning I know that it is the desk between two other desks
+CONSTRAINT_BETWEEN(target=DESK_MIDDLE, anchors={DESK_LEFT, DESK_RIGHT})
+
+# set the variable for the target object
+SET_TARGET(DESK_MIDDLE)
+
+<[USER]>
+
+QUERY:
+it is the tallest chair at the center of the room.
+
+RELEVANT OBJECT LABELS:
+[0] room center
+[1] chair
+
+<[ASSISTANT]>
+
+# define a variable for the target chair object
+CHAIR_0 = DEFINE_VARIABLE(labels=["chair"])
+
+# define the room center variable
+ROOM_CENTER = DEFINE_VARIABLE(labels=["room center"])
+
+# add a constraint: the chair is near the room center
+# we pass the set of all chairs in order to keep only chairs at the room center
+CONSTRAINT_NEAR(target=CHAIR_0, anchor=ROOM_CENTER)
+
+# add a constraint: the chair is the tallest one, i.e. the one with largest height
+# we find the chair with the largest extent along z-axis in the set of chairs at the room center
+CONSTRAINT_MAX_OF(target=CHAIR_0, score_func="size-z")
+
+# set the final target
+SET_TARGET(CHAIR_0)
+
+<[USER]>
+
+QUERY:
+this is a blue trash can that is beside a orange one. it is not the trash can far from other trash cans.
+
+RELEVANT OBJECT LABELS:
+[0] trash can
+
+<[ASSISTANT]>
+
+# define a variable for the blue trash can (target)
+TRASH_CAN_BLUE = DEFINE_VARIABLE(labels=["trash can"])
+
+# define a variable for the orange trash can
+TRASH_CAN_ORANGE = DEFINE_VARIABLE(labels=["trash can"])
+
+# define a variable for the far away trash can
+TRASH_CAN_FAR = DEFINE_VARIABLE(labels=["trash can"])
+
+# the blue trash can should be beside the orange one
+CONSTRAINT_NEAR(target=TRASH_CAN_BLUE, anchor=TRASH_CAN_ORANGE)
+
+# the far away trash can should be far from the other trash cans
+CONSTRAINT_FAR(target=TRASH_CAN_FAR, anchor=TRASH_CAN_BLUE)
+CONSTRAINT_FAR(target=TRASH_CAN_FAR, anchor=TRASH_CAN_ORANGE)
+
+# finally set the variable for the target object
+SET_TARGET(TRASH_CAN_BLUE)
+
+<[USER]>
+
+QUERY:
+it is the smallest cup on the largest table.
+
+RELEVANT OBJECT LABELS:
+[0] cup
+[1] table
+
+<[ASSISTANT]>
+
+# define a variable for the largest table
+TABLE_0 = DEFINE_VARIABLE(labels=["table"])
+
+# define a variable for the smallest cup on the largest table
+CUP_0 = DEFINE_VARIABLE(labels=["cup"])
+
+# constraint: the largest table
+CONSTRAINT_MAX_OF(target=TABLE_0, score_func="size")
+
+# constraint: the cup is on the table
+CONSTRAINT_ON(target=CUP_0, anchor=TABLE_0)
+
+# constraint: the smallest cup
+CONSTRAINT_MIN_OF(target=CUP_0, score_func="size")
+
+# set the variable for the target object
+SET_TARGET(CUP_0)
+
+<[USER]>
+
+QUERY:
+this is the third chair from the left.
+
+RELEVANT OBJECT LABELS:
+[0] chair
+
+<[ASSISTANT]>
+
+# this is an example of how to handle counting-based query
+
+# since the target is the third chair from the left, there must be at least three chairs in total
+# so we define a variable for each of them
+CHAIR_0 = DEFINE_VARIABLE(labels=["chair"])
+CHAIR_1 = DEFINE_VARIABLE(labels=["chair"])
+CHAIR_2 = DEFINE_VARIABLE(labels=["chair"])
+
+# constraint: the target chair has a chair on the left, which also has another chair to its left
+CONSTRAINT_LEFT(target=CHAIR_1, anchor=CHAIR_0)
+CONSTRAINT_LEFT(target=CHAIR_2, anchor=CHAIR_1)
+
+# set the variable for the target object
+SET_TARGET(CHAIR_0)
+
+<[USER]>
+
+QUERY:
+this is the chair third closest to the corner of the room.
+
+RELEVANT OBJECT LABELS:
+[0] chair
+[1] room corner
+
+<[ASSISTANT]>
+
+# this is another example of how to handle counting-based query
+# it is also a comparison-based query
+
+# since the target is the third chair from the room corner, there must be at least three chairs in total
+# so we define a variable for each of them
+CHAIR_0 = DEFINE_VARIABLE(labels=["chair"])
+CHAIR_1 = DEFINE_VARIABLE(labels=["chair"])
+CHAIR_2 = DEFINE_VARIABLE(labels=["chair"])
+
+# define a variable for the corner of the room
+ROOM_CORNER = DEFINE_VARIABLE(labels=["room corner"])
+
+# constraint: the target chair (CHAIR_2) is farther from the room corner than another chair (CHAIR_1), which (CHAIR_1) again is farther from the room corner than yet a third chair (CHAIR_0)
+CONSTRAINT_MORE(target=CHAIR_2, reference=CHAIR_1, anchor=ROOM_CORNER, score_func="distance")
+CONSTRAINT_MORE(target=CHAIR_1, reference=CHAIR_0, anchor=ROOM_CORNER, score_func="distance")
+
+# set the variable for the target object
+SET_TARGET(CHAIR_2)
+
+<[USER]>
+
+QUERY:
+there are some windows on the wall. this is the window in the middle.
+
+RELEVANT OBJECT LABELS:
+[0] wall
+[1] window
+
+<[ASSISTANT]>
+
+# define variables for the window and the wall
+WALL_0 = DEFINE_VARIABLE(labels=["wall"])
+WINDOW_0 = DEFINE_VARIABLE(labels=["window"])
+
+# the windows should be near the wall
+CONSTRAINT_NEAR(target=WINDOW_0, anchor=WALL_0)
+
+# the target window should be in the middle, i.e., the "distance-to-center" score must be minimized
+CONSTRAINT_MIN_OF(target=WINDOW_0, score_func="distance-to-center")
+
+# set the variable for the target object
+SET_TARGET(WINDOW_0)
+
+<[USER]>
+
+QUERY:
+this is a chair. it does not have a teddy bear sitting on it.
+
+RELEVANT OBJECT LABELS:
+[0] chair
+[1] teddy bear
+
+<[ASSISTANT]>
+
+# this is an example of using negative variables
+
+# define variables for the chair and the teddy bear
+CHAIR_0 = DEFINE_VARIABLE(labels=["chair"])
+
+# define a negative variable to express that the chair has no teddy bear on it
+TEDDY_BEAR_NEG = DEFINE_NEGATIVE_VARIABLE(labels=["teddy bear"])
+
+# first create a normal constraint: the teddy bear is on the chair
+CONSTRAINT_ON(target=TEDDY_BEAR_NEG, anchor=CHAIR_0)
+
+# set the variable for the target object
+SET_TARGET(CHAIR_0)
+
+<[USER]>
+
+QUERY:
+it is the cup not on the table.
+
+RELEVANT OBJECT LABELS:
+[0] cup
+[1] table
+
+<[ASSISTANT]>
+
+# this is another example of using negative variables
+
+# define the cup variable, which is the target
+CUP_0 = DEFINE_VARIABLE(labels=["cup"])
+
+# define the table variable as negative, since the cup variable is the target and we want to locate it
+TABLE_NEG_0 = DEFINE_NEGATIVE_VARIABLE(labels=["table"])
+
+# the cup is not on the table
+CONSTRAINT_ON(target=CUP_0, anchor=TABLE_NEG_0)
+
+# set the variable for the target object
+SET_TARGET(CUP_0)
+
+<[USER]>
+
+QUERY:
+this is a recycling trash can. its blue and white in color and is on the left of a box. it is also below a wooden counter.
+
+RELEVANT OBJECT LABELS:
+[0] trash can
+[1] box
+[2] counter
+[3] plastic trash bin
+[4] wastebin
+
+<[ASSISTANT]>
+
+# define variables for the trash can. since we have multiple labels denoting trash cans (with synonyms), we include all of them in the label.
+TRASH_CAN_0 = DEFINE_VARIABLE(labels=["trash can", "plastic trash bin", "wastebin"])
+
+# define variables for the box and the counter
+BOX_0 = DEFINE_VARIABLE(labels=["box"])
+COUNTER_0 = DEFINE_VARIABLE(labels=["counter"])
+
+# add a constraint: the trash can is on the left of a box
+CONSTRAINT_LEFT(target=TRASH_CAN_0, anchor=BOX_0)
+
+# add a constraint: the trash can is also below a wooden counter
+CONSTRAINT_UNDER(target=TRASH_CAN_1, anchor=COUNTER_0)
+
+# set the CSP variable for the target object
+SET_TARGET(TRASH_CAN_0)

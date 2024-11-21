@@ -1,0 +1,110 @@
+<[SYSTEM]>
+
+You are given the 3D visual grounding task. The input is a language query describing some object(s) in the 3D scene. Besides that, you are also given a list of object labels that are relevant to this query. Any other objects should not be considered. 
+
+Your task is to generate a Python program that locate the target object specified by the query. You don't have to use all the relevant object labels given to you. Some of them may actually be irrelevant. What's important is, you should always use the labels of the relevant objects given to you.
+
+The Python program you generate should solve a CSP (Constraint Satisfication Problem). Solving the CSP will result in the correct grounding of the target objects. The variables are objects and constraints are spatial relationships among objects or appearance information of objects.
+
+You should first try to do some spatial reasoning of the input query and simplify the logic. Some relations between objects can be converted into simpler ones. You should always first try to reduce the complexity of the input query. E.g. an object that has one object on the left and another on the right is between those two objects. So you should use a single relation "between", instead of two relations "left" and "right". There are many similar cases.
+
+Your should only use the following predefined functions in your program. No other functions are allowed.
+
+<[REGISTERED_FUNCTIONS_PLACEHOLDER]>
+
+Some of the predefined functions above have a "score_func" parameter, which specifies how to compare objects. The following score functions are available.
+
+<[REGISTERED_SCORE_FUNCTIONS_PLACEHOLDER]>
+
+Your output should be a valid Python program, which means that any additional explanation should be comments (start with #). You only have to output the python code. Please DO NOT follow markdown conventions. You DO NOT have to enclose the code with ```.
+
+Some extra tips:
+- "North", "south", "east" and "west" should always be translated into "near".
+- If something is at the side of a room, it should be far from the room center.
+- If an object you need is not in the relevant object list, please ignore information about that object, and do not use it.
+- You should not ignore relations that can be represented with the given relevant object labels and available functions.
+- Relations like "farthest", "northwestern-most" in reference to the room should be translated to being farthest to the room center.
+- You should identify only ONE target, to which the given 3D visual grounding query is referring to. You should always set the target at the very end. No function calls are allowed after setting the target.
+- Please DO NOT define variables that you will not use later. Every variables defined must be set in relation with at least one other variable.
+- Sometimes multiple labels refer to similar objects. For example, different queries may use "desk" or "table" to refer to the same thing. So when you need a "desk", and only "table" are available, you should use table, and vice versa.
+- For each object, you either define a normal variable or a negative variable. Please do not define both.
+
+<[USER]>
+
+QUERY:
+the desk is one of three in the row. there is a desk to the right of it, and a desk to the left of it.
+
+RELEVANT OBJECT LABELS:
+[0] desk
+
+<[ASSISTANT]>
+
+# since there are three desks in total, I'll create an object to represent each of them
+DESK_MIDDLE = DEFINE_VARIABLE(labels=["desk"])
+DESK_LEFT = DEFINE_VARIABLE(labels=["desk"])
+DESK_RIGHT = DEFINE_VARIABLE(labels=["desk"])
+
+# the target desk has one desk to the right, one to the left, therefore by a simple reasoning I know that it is the desk between two other desks
+CONSTRAINT_BETWEEN(target=DESK_MIDDLE, anchors={DESK_LEFT, DESK_RIGHT})
+
+# set the variable for the target object
+SET_TARGET(DESK_MIDDLE)
+
+<[USER]>
+
+QUERY:
+this is a blue trash can that is beside a orange one. it is not the trash can far from other trash cans.
+
+RELEVANT OBJECT LABELS:
+[0] trash can
+
+<[ASSISTANT]>
+
+# define a variable for the blue trash can (target)
+TRASH_CAN_BLUE = DEFINE_VARIABLE(labels=["trash can"])
+
+# define a variable for the orange trash can
+TRASH_CAN_ORANGE = DEFINE_VARIABLE(labels=["trash can"])
+
+# define a variable for the far away trash can
+TRASH_CAN_FAR = DEFINE_VARIABLE(labels=["trash can"])
+
+# the blue trash can should be beside the orange one
+CONSTRAINT_NEAR(target=TRASH_CAN_BLUE, anchor=TRASH_CAN_ORANGE)
+
+# the far away trash can should be far from the other trash cans
+CONSTRAINT_FAR(target=TRASH_CAN_FAR, anchor=TRASH_CAN_BLUE)
+CONSTRAINT_FAR(target=TRASH_CAN_FAR, anchor=TRASH_CAN_ORANGE)
+
+# finally set the variable for the target object
+SET_TARGET(TRASH_CAN_BLUE)
+
+<[USER]>
+
+QUERY:
+this is a recycling trash can. its blue and white in color and is on the left of a box. it is also below a wooden counter.
+
+RELEVANT OBJECT LABELS:
+[0] trash can
+[1] box
+[2] counter
+[3] plastic trash bin
+[4] wastebin
+
+<[ASSISTANT]>
+
+# define variables for the trash can. since we have multiple labels denoting trash cans (with synonyms), we include all of them in the label.
+TRASH_CAN_0 = DEFINE_VARIABLE(labels=["trash can", "plastic trash bin", "wastebin"])
+
+# define variables for the box and the counter
+BOX_0 = DEFINE_VARIABLE(labels=["box"])
+COUNTER_0 = DEFINE_VARIABLE(labels=["counter"])
+
+# add a constraint: the trash can is on the left of a box
+CONSTRAINT_LEFT(target=TRASH_CAN_0, anchor=BOX_0)
+
+# add a constraint: the trash can is also below a wooden counter
+CONSTRAINT_UNDER(target=TRASH_CAN_1, anchor=COUNTER_0)
+
+# set the CSP variable for the target object
+SET_TARGET(TRASH_CAN_0)

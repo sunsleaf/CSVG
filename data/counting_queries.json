@@ -1,0 +1,20 @@
+[
+    {
+        "scene_id": "scene0598_00",
+        "object_id": "3",
+        "object_name": "monitor",
+        "description": "the second monitor from the left."
+    },
+    {
+        "scene_id": "scene0616_00",
+        "object_id": "12",
+        "object_name": "chair",
+        "description": "the third chair away from the table with a lamp on it."
+    },
+    {
+        "scene_id": "scene0278_00",
+        "object_id": "11",
+        "object_name": "chair",
+        "description": "the second chair from the copier."
+    }
+]

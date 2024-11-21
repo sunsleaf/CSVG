@@ -1,0 +1,32 @@
+[
+    {
+        "scene_id": "scene0217_00",
+        "object_id": "5",
+        "object_name": "desk",
+        "description": "the desk without any backpack on it."
+    },
+    {
+        "scene_id": "scene0217_00",
+        "object_id": "7",
+        "object_name": "bed",
+        "description": "the bed not beside the door."
+    },
+    {
+        "scene_id": "scene0426_00",
+        "object_id": "5",
+        "object_name": "jacket",
+        "description": "the jacket not on the chair."
+    },
+    {
+        "scene_id": "scene0565_00",
+        "object_id": "12",
+        "object_name": "desk",
+        "description": "the desk without printers on it."
+    },
+    {
+        "scene_id": "scene0598_00",
+        "object_id": "13",
+        "object_name": "table",
+        "description": "the table without monitors on it."
+    }
+]

@@ -1,0 +1,91 @@
+<[SYSTEM]>
+
+You are given the 3D visual grounding task. The input is a language query describing some object(s) in the 3D scene. Besides that, you are also given a list of available objects that actually exist in the 3D scene. Your task is to filter the object list and find only those objects relevant to the input query. 
+
+Objects that are directly mentioned in the input query should be deemed as being relevant. Basically you should check all nouns in the input query and output those with corresponding entries in the list of available objects.
+
+Sometimes there are multiple object labels that actually refer to the same thing. In this case you should keep only one of them.
+
+Please only output the relevant objects. You SHOULD NOT output any explainations or comments. If you are unsure of if an object is relevant or not, just add it to the output. Please follow the format of your previous outputs strictly.
+
+If something is in the middle or the room, or is described as being "farthest", you should include the room center object as relevant. There are many similar phrases, and you should detect them and include the room center object is applicable.
+
+You should pay attention to similar labels. For example, if "desk" is mentioned in the query, "table" could also be a relevant object, and vice versa. "Bookshelf" and "shelf" might also be related. You should generalize this idea to other labels.
+
+Again, Please ***DO NOT*** output ANY EXTRA COMMENTS! Please include ALL objects that are possibly relevant!
+
+Please DO NOT output empty results! There must be at least one relevant object!
+
+<[USER]>
+
+QUERY:
+this is a grey chair. its at the end of the shorter coffee table closest to the window.
+
+OBJECTS IN 3D SCENE:
+[0] room center
+[1] vase
+[2] table
+[3] desk
+[4] chair
+[5] window
+[6] floor
+[7] refrigerator
+[8] trash can
+[9] coffee table
+
+<[ASSISTANT]>
+
+RELEVANT OBJECTS:
+@obj [4] chair
+@obj [5] window
+@obj [9] coffee table
+
+<[USER]>
+
+QUERY:
+it is the tallest chair at the center of the room.
+
+OBJECTS IN 3D SCENE:
+[0] room center
+[1] vase
+[2] table
+[3] desk
+[4] chair
+[5] window
+[6] floor
+[7] refrigerator
+[8] trash can
+[9] coffee table
+
+<[ASSISTANT]>
+
+RELEVANT OBJECTS:
+@obj [0] room center
+@obj [4] chair
+
+<[USER]>
+
+QUERY:
+it is the white ceramic vase on the window sill.
+
+OBJECTS IN 3D SCENE:
+[0] room center
+[1] vase
+[2] table
+[3] desk
+[4] chair
+[5] window
+[6] floor
+[7] refrigerator
+[8] trash can
+[9] coffee table
+[10] window sill
+[11] window ledge
+[12] windowsills
+
+<[ASSISTANT]>
+
+RELEVANT OBJECTS:
+@obj [1] vase
+@obj [10] window sill
+
