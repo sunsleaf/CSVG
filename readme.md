@@ -58,5 +58,9 @@ Use the `--help` option to see a full list of available options, e.g., the `--di
 
 The visualization script will start a [PyViz] server, and you can view the visualization in your browser at `0.0.0.0:8889` (the default port).
 
+### Contributor
+
+Qihao Yuan (Email: qihao.yuan@rug.nl)
+
 ### License
 The source code is released under [GPLv3](https://www.gnu.org/licenses/) license.
