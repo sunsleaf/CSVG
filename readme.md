@@ -4,6 +4,16 @@ We propose Constraint Satisfaction Visual Grounding (CSVG) for 3D visual groundi
 
 Here are the instructions to run the code.
 
+#### Setup the environment.
+
+```
+pip install transformers
+pip install pyviz3d
+pip install plyfile
+```
+
+If you encounter missing package errors, simply installing the package should solve the problem.
+
 #### Prepare the data.
 
 Our system can be used with the ground truth segmentation from [ScanNet](https://github.com/ScanNet/ScanNet) or predictions from [Mask3D](https://github.com/JonasSchult/Mask3D).
