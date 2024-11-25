@@ -1,10 +1,25 @@
-### Solving Zero-Shot 3D Visual Grounding as Constraint Satisfaction Problems
+# Solving Zero-Shot 3D Visual Grounding as Constraint Satisfaction Problems
+
+<p>
+<a href="https://arxiv.org/pdf/2411.14594">
+    <img src="https://img.shields.io/badge/PDF-arXiv-brightgreen" /></a>
+<a href="https://pytorch.org/">
+    <img src="https://img.shields.io/badge/Framework-PyTorch-orange" /></a>
+</p>
 
 We propose Constraint Satisfaction Visual Grounding (CSVG) for 3D visual grounding in a point cloud referred to by nautural language descriptions.
 
+
+## Updates
+
+- [x] 11/2024, CSVG code released.
+- [x] 11/2024, CSVG arxiv paper released.
+
+## Setup
+
 Here are the instructions to run the code.
 
-#### Setup the environment.
+#### Install the environment.
 
 ```
 pip install transformers
@@ -74,3 +89,16 @@ Qihao Yuan (Email: qihao.yuan@rug.nl)
 
 ### License
 The source code is released under [GPLv3](https://www.gnu.org/licenses/) license.
+
+## Citation
+
+If you are interested in this work, please cite as below:
+
+```text
+@article{yuan2024solving,
+      title={Solving Zero-Shot 3D Visual Grounding as Constraint Satisfaction Problems}, 
+      author={Yuan, Qihao and Zhang, Jiaming and Li, Kailai and Stiefelhagen, Rainer},
+      journal={arXiv preprint arXiv:2411.14594},
+      year={2024}
+}
+```
