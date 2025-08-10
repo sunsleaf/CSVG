@@ -7,13 +7,13 @@
     <img src="https://img.shields.io/badge/Framework-PyTorch-orange" /></a>
 </p>
 
-We propose [Constraint Satisfaction Visual Grounder (CSVG)](https://sunsleaf.github.io/CSVG/) for 3D visual grounding in a point cloud referred to by nautural language descriptions.
+We propose [Constraint Satisfaction Visual Grounder (CSVG)](https://asig-x.github.io/csvg_web/) for 3D visual grounding in a point cloud referred to by nautural language descriptions.
 
 
 ## Updates
 
 - [x] 11/2024, CSVG code released.
-- [x] 11/2024, CSVG arxiv paper released.
+- [x] 11/2024, CSVG [arxiv paper](https://arxiv.org/abs/2411.14594) released.
 
 ## Setup
 
